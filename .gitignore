@@ -1,17 +1,8 @@
-# Devenv
-.devenv*
-devenv.local.nix
-devenv.local.yaml
-
-# direnv
-.direnv
-
-# pre-commit
-.pre-commit-config.yaml
-
 report.docx
 template.pdf
 
 .env
+output.log
 
 __pycache__
+yolov8s.pt

@@ -1,18 +1,11 @@
 """
 a. For logging the result in log file
 """
-import time
-import os
-import sys
 
-LEVELS = {
-    "DEBUG": 3,
-    "INFO": 2,
-    "WARN": 1,
-    "ERROR": 0,
-    None: 0,
-}
-LEVEL = LEVELS[os.environ.get("LOG_LEVEL")]
+import time
+import sys
+from config import LOG_LEVEL as LEVEL, LEVELS
+
 START_TIME = 0
 LOG_FILE = sys.stdout
 
@@ -42,7 +35,7 @@ def debug(*args):
         f"[DEBUG][{fmt_time(time.time() - START_TIME)}]",
         *args,
         flush=True,
-        file=LOG_FILE
+        file=LOG_FILE,
     )
 
 
@@ -53,7 +46,7 @@ def info(*args):
         f"[INFO ][{fmt_time(time.time() - START_TIME)}]",
         *args,
         flush=True,
-        file=LOG_FILE
+        file=LOG_FILE,
     )
 
 
@@ -64,7 +57,7 @@ def warn(*args):
         f"[WARN ][{fmt_time(time.time() - START_TIME)}]",
         *args,
         flush=True,
-        file=LOG_FILE
+        file=LOG_FILE,
     )
 
 
@@ -75,5 +68,5 @@ def error(*args):
         f"[ERROR][{fmt_time(time.time() - START_TIME)}]",
         *args,
         flush=True,
-        file=LOG_FILE
+        file=LOG_FILE,
     )
