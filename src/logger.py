@@ -70,3 +70,20 @@ def error(*args):
         flush=True,
         file=LOG_FILE,
     )
+
+
+class ModuleLogger:
+    def __init__(self, module_name):
+        self.name = module_name
+
+    def debug(self, *args):
+        return debug(*(f"[{self.name}]", *args))
+
+    def info(self, *args):
+        return info(*(f"[{self.name}]", *args))
+
+    def warn(self, *args):
+        return warn(*(f"[{self.name}]", *args))
+
+    def error(self, *args):
+        return error(*(f"[{self.name}]", *args))

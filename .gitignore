@@ -5,4 +5,4 @@ template.pdf
 output.log
 
 __pycache__
-yolov8s.pt
+*.pt

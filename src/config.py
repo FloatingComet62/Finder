@@ -8,9 +8,9 @@ IV. Log file path
 """
 
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
-import os
 
 LEVELS = {
     "DEBUG": 3,
@@ -19,3 +19,4 @@ LEVELS = {
     "ERROR": 0,
 }
 LOG_LEVEL = LEVELS.get((os.environ.get("LOG_LEVEL") or "").upper()) or LEVELS["ERROR"]
+MODEL_NAMES = os.environ["MODEL_NAMES"]
