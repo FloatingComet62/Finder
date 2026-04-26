@@ -65,8 +65,11 @@ def inference_worker(i):
 
 
 def init(model_paths, video_capture=0, output_log_file_path="output.log"):
+    fmt_model = f"Model = {model_paths}"
+    fmt_video_capture = f"VideoCapture = {video_capture}"
+    fmt_output_logs = f"OutputLogs = {output_log_file_path}"
     logger.debug(
-        f"Initialization. Model = {model_paths}, VideoCapture = {video_capture}, OutputLogs = {output_log_file_path}"
+        f"Initialization. {fmt_model}, {fmt_video_capture}, {fmt_output_logs}"
     )
     global capture, output, output_logs
     capture = cv2.VideoCapture(video_capture)

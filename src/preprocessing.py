@@ -37,10 +37,11 @@ class Item:
         )
 
     def __repr__(self):
-        pos = repr(self.position)
         effective_confidence = self.effective_confidence()
         confidence_percent = round(effective_confidence * 100, 2)
-        return f'Item(name="{self.name}", position={pos}, confidence={confidence_percent}%)'
+        name = "name=\"" + self.name + "\""
+        pos = "position=" + repr(self.position)
+        return f'Item({name}, {pos}, confidence={confidence_percent}%)'
 
     def compare(self, other):
         if self.name != other.name:
@@ -48,7 +49,8 @@ class Item:
 
         actual_velocity = (other.position - self.position).norm()
         velocity_disparity_dotproduct = (
-            actual_velocity.x * self.velocity.x + actual_velocity.y * self.velocity.y
+            actual_velocity.x * self.velocity.x
+            + actual_velocity.y * self.velocity.y
         )
         velocity_disparity = 6 / (velocity_disparity_dotproduct + 3) - 1
 
@@ -60,7 +62,9 @@ class Item:
         self.position = (
             self.position * self.confidence + other.position * other.confidence
         ) / (self.confidence + other.confidence)
-        self.signal_strength += int(MAX_ITERATION_SIGNAL_STRENGTH * other.confidence)
+        self.signal_strength += int(
+            MAX_ITERATION_SIGNAL_STRENGTH * other.confidence
+        )
         self.confidence = (self.confidence + other.confidence) / 2
 
     def tick(self) -> bool:
@@ -123,7 +127,10 @@ class ItemTagger:
             logger.debug("Adding item", item.name)
             for note in comparision_notes[item]:
                 logger.debug(
-                    "Comparision -> Name:", note[0], " Comparision score:", comparision
+                    "Comparision -> Name:",
+                    note[0],
+                    " Comparision score:",
+                    comparision
                 )
             self.tagged_objects.append(item)
 
