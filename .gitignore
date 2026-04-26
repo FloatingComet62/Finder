@@ -1,8 +1,10 @@
 report.docx
 template.pdf
 
+runs
+
 .env
-output.log
 
 __pycache__
+*.log
 *.pt

@@ -52,7 +52,7 @@ class Item:
         )
         velocity_disparity = 6 / (velocity_disparity_dotproduct + 3) - 1
 
-        diff = (other.position - self.position)**2
+        diff = (other.position - self.position) ** 2
         return math.sqrt(diff.x + diff.y) * velocity_disparity
 
     def update(self, other):
@@ -78,28 +78,41 @@ class ItemTagger:
         self.tagged_objects = []
 
     def add_from_results(self, models_results):
-        logger.debug("Adding", sum(map(lambda x: len(x[0].boxes), models_results)), "results")
+        logger.debug(
+            "Adding",
+            sum(map(lambda x: len(x[0].boxes), models_results)),
+            "results"
+        )
+        logger.debug("Currently", len(self.tagged_objects), "objects tagged")
         for obj in self.tagged_objects:
             if obj.effective_confidence() < 0.1:
                 continue
             logger.debug(obj)
         items = []
-        for model_results in models_results:
-            for i, result in enumerate(models_results):
-                if len(result) == 0:
-                    continue
+        comparision_notes = {}
+        for i, result in enumerate(models_results):
+            if len(result) == 0:
+                continue
 
-                for box in result[0].boxes:
-                    items.append(Item.from_box(box, models[i]))
+            for box in result[0].boxes:
+                item = Item.from_box(box, models[i])
+                items.append(item)
+                if item not in comparision_notes:
+                    comparision_notes[item] = []
 
         if len(self.tagged_objects) == 0:
             for item in items:
+                logger.debug("Adding item", item.name)
                 self.tagged_objects.append(item)
             return
 
         for i in range(len(self.tagged_objects)):
             for item in items[:]:
-                if self.tagged_objects[i].compare(item) > ITEM_INSERTION_DIFF:
+                comparision = self.tagged_objects[i].compare(item)
+                comparision_notes[item].append(
+                    (self.tagged_objects[i].name, comparision)
+                )
+                if comparision > ITEM_INSERTION_DIFF:
                     continue
 
                 self.tagged_objects[i].update(item)
@@ -107,6 +120,11 @@ class ItemTagger:
                 break
 
         for item in items:
+            logger.debug("Adding item", item.name)
+            for note in comparision_notes[item]:
+                logger.debug(
+                    "Comparision -> Name:", note[0], " Comparision score:", comparision
+                )
             self.tagged_objects.append(item)
 
         for tagged_object in self.tagged_objects:
