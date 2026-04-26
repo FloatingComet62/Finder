@@ -9,12 +9,13 @@ from ultralytics import YOLO
 
 # i tried yolov26n, but it neeeds 16GBs of VRAM, and i ain't got that
 model = YOLO("yolov8s.pt")
+# model.to('cuda')
 
 results = model.train(
     data="SKU-110K.yaml",
     epochs=1,
     imgsz=640,
-    fraction=0.1,
+    fraction=0.01,
     # project="runs/sku110k",
     # name=time.time(),
     # exist_ok=False,

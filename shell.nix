@@ -3,58 +3,10 @@
 let
   lib = pkgs.lib;
   py = pkgs.python313;
-  # ultralytics = py.pkgs.ultralytics.overridePythonAttrs (old: rec {
-  #   version = "8.4.41";
-  #
-  #   src = pkgs.fetchPypi {
-  #     pname = "ultralytics";
-  #     inherit version;
-  #     sha256 = "sha256-HMw/Xz5+6JC8EEP48OaeWto+gCEVda6W+06kK6HRjcg=";
-  #   };
-  # });
-  # ultralytics = py.pkgs.buildPythonPackage rec {
-  #   pname = "ultralytics";
-  #   version = "8.4.41";
-  #   format = "pyproject";
-  #
-  #   src = pkgs.fetchPypi {
-  #     inherit pname version;
-  #     sha256 = "sha256-HMw/Xz5+6JC8EEP48OaeWto+gCEVda6W+06kK6HRjcg=";
-  #   };
-  #
-  #   build-system = [ py.pkgs.setuptools ];
-  #
-  #   propagatedBuildInputs = with py.pkgs; [
-  #     torchWithCuda
-  #     torchvision
-  #     opencv4
-  #     numpy
-  #     pillow
-  #     pyyaml
-  #     requests
-  #     scipy
-  #     tqdm
-  #     psutil
-  #     py-cpuinfo
-  #     matplotlib
-  #     pandas
-  #     ultralytics-thop
-  #   ];
-  #
-  #   postInstall = ''
-  #     # ultralytics expects 'opencv-python' but we provide opencv4
-  #     echo "opencv-python" >> $out/lib/python*/site-packages/ultralytics-${version}.dist-info/METADATA
-  #   '';
-  #
-  #   pythonRemoveDeps = [ "opencv-python" "polars" ];
-  #   doCheck = false;
-  # };
   pythonEnv = py.withPackages (ps: with ps; [
     pip
     opencv4
     numpy
-    # torch
-    # torchvision
     tensorboard
     python-dotenv
     ultralytics
@@ -87,12 +39,6 @@ pkgs.mkShell {
     wget
     v4l-utils
     ffmpeg
-    # cudaPackages.cudatoolkit
-    # cudaPackages.cudnn
-    # linuxPackages.nvidia_x11
-    # export CUDA_PATH=${pkgs.cudaPackages.cudatoolkit}
-    # export LD_LIBRARY_PATH=/run/opengl-driver/lib
-    # :/run/opengl-driver-32/lib:${pkgs.cudaPackages.cudatoolkit}/lib:${pkgs.cudaPackages.cudnn}/lib:$LD_LIBRARY_PATH
   ];
 
   shellHook = ''

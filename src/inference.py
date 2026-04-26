@@ -29,6 +29,15 @@ frame_queue = queue.Queue(maxsize=1)
 result_queues = []
 
 
+def force_put_in_queue(queue, data):
+    if queue.full():
+        try:
+            queue.get_nowait()
+        except queue.Empty:
+            pass
+    queue.put(data)
+
+
 def annotate(frame, results):
     annotator = Annotator(frame)
     for i, result in enumerate(results):
@@ -53,13 +62,7 @@ def inference_worker(i):
                 break
 
             results = model(frame, verbose=False)
-
-            if result_queue.full():
-                try:
-                    result_queue.get_nowait()
-                except queue.Empty:
-                    pass
-            result_queue.put([results[0]])
+            force_put_in_queue(result_queue, [results[0]])
 
     return inner
 
@@ -74,13 +77,14 @@ def init(model_paths, video_capture=0, output_log_file_path="output.log"):
     global capture, output, output_logs
     capture = cv2.VideoCapture(video_capture)
 
-    for i, model_path in enumerate(model_paths):
+    for i, model_path in enumerate(model_paths.split(',')):
         models.append(YOLO(model_path))
         result_queues.append(queue.Queue(maxsize=1))
         __last_results.append(None)
 
-        worker = threading.Thread(target=inference_worker(i), daemon=True)
-        worker.start()
+        threading \
+            .Thread(target=inference_worker(i), daemon=True) \
+            .start()
 
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -105,7 +109,7 @@ def init(model_paths, video_capture=0, output_log_file_path="output.log"):
     )
 
 
-def step() -> bool:
+def __log_latency():
     global __last_frame_time, __step_count, __avg_latency
     new_time = time.time()
     latency = round((new_time - __last_frame_time) * 1000, 2)
@@ -117,17 +121,15 @@ def step() -> bool:
     __step_count += 1
     logger.debug(f"Step (Latency: {latency}ms) (Average: {__avg_latency}ms)")
 
+
+def step() -> bool:
+    __log_latency()
+
     ret, frame = capture.read()
     if not ret:
         return (False, [])
 
-    if frame_queue.full():
-        try:
-            frame_queue.get_nowait()
-        except queue.Empty:
-            pass
-    frame_queue.put(frame)
-
+    force_put_in_queue(frame_queue, frame)
     all_results = []
 
     for i, result_queue in enumerate(result_queues):
@@ -139,8 +141,6 @@ def step() -> bool:
         except queue.Empty:
             if __last_results[i] is not None:
                 frame = annotate(frame, __last_results[i])
-            else:
-                pass
 
     try:
         output.stdin.write(frame.tobytes())

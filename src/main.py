@@ -13,21 +13,16 @@ import inference
 import preprocessing
 
 if __name__ == "__main__":
-    logger.init()
+    logger.init(file=open("stdout.log"))
     logger.debug("Initialized")
 
-    inference.init(config.MODEL_NAMES.split(","))
+    inference.init(config.MODEL_NAMES)
 
     tagger = preprocessing.ItemTagger()
 
     while (inference_result := inference.step())[0]:
         inference_result = inference_result[1]
         tagger.add_from_results(inference_result)
-
-    # for obj in tagger.tagged_objects:
-    #     if obj.effective_confidence() < 0.1:
-    #         continue
-    #     print(obj)
 
     inference.deinit()
     logger.deinit()
