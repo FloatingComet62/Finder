@@ -14,19 +14,34 @@ logger = ModuleLogger("Preprocessing")
 
 ITEM_INSERTION_DIFF = 10000
 MAX_ITERATION_SIGNAL_STRENGTH = 20
+COLOR_FREQUENCY_DIFF_STRENGTH = 1000
 
 
 class Item:
-    def __init__(self, class_name, position, confidence):
+    def __init__(self, class_name, position, confidence, color_frequency):
         self.id = "".join(choices(ascii_letters, k=32))
         self.name = class_name
         self.position = position
         self.velocity = Vector2(0, 0)
         self.confidence = confidence
         self.signal_strength = int(MAX_ITERATION_SIGNAL_STRENGTH * confidence)
+        self.color_frequency = color_frequency
 
-    def from_box(box, model):
+    def from_box(box, model, frame):
         x1, y1, x2, y2 = box.xyxy[0]
+        color_frequency = {
+            "red": [0] * 256,
+            "green": [0] * 256,
+            "blue": [0] * 256
+        }
+
+        for xx in range(int(x1), int(x2)):
+            for yy in range(int(y1), int(y2)):
+                pixel = frame[yy][xx]
+                color_frequency["red"][pixel[0]] += 1
+                color_frequency["green"][pixel[1]] += 1
+                color_frequency["blue"][pixel[2]] += 1
+
         cx = (x1 + x2) / 2
         cy = (y1 + y2) / 2
 
@@ -34,6 +49,7 @@ class Item:
             model.names[int(box.cls)],
             Vector2(cx, cy),
             float(box.conf),
+            color_frequency
         )
 
     def __repr__(self):
@@ -55,7 +71,18 @@ class Item:
         velocity_disparity = 6 / (velocity_disparity_dotproduct + 3) - 1
 
         diff = (other.position - self.position) ** 2
-        return math.sqrt(diff.x + diff.y) * velocity_disparity
+
+        color_frequency_diff = 0
+        for channel in ["red", "green", "blue"]:
+            for i in range(256):
+                color_frequency_diff += abs(
+                    self.color_frequency[channel][i]
+                    - other.color_frequency[channel][i]
+                )
+
+        return math.sqrt(diff.x + diff.y) * velocity_disparity \
+            + COLOR_FREQUENCY_DIFF_STRENGTH \
+            * color_frequency_diff / (256 * 256 * 3)
 
     def update(self, other):
         self.velocity = (other.position - self.position).norm()
@@ -99,7 +126,7 @@ class ItemTagger:
                 continue
 
             for box in result[0].boxes:
-                item = Item.from_box(box, models[i])
+                item = Item.from_box(box, models[i], result[0].orig_img)
                 items.append(item)
                 if item not in comparision_notes:
                     comparision_notes[item] = []
