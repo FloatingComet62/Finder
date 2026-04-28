@@ -11,8 +11,11 @@ class Vector2:
         self.x = float(x)
         self.y = float(y)
 
+    def dist(self):
+        return math.sqrt(self.x**2 + self.y**2)
+
     def norm(self):
-        dist = math.sqrt(self.x**2 + self.y**2)
+        dist = self.dist()
         return Vector2(self.x / dist, self.y / dist)
 
     def __repr__(self):

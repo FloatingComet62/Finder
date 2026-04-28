@@ -5,7 +5,7 @@ train:
   python src/training.py
 
 fmt:
-  black .
+  black --line-length 80 .
 
 req:
   pip freeze > requirements.txt

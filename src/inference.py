@@ -45,7 +45,12 @@ def annotate(frame, results):
             b = box.xyxy[0]
             c = int(box.cls)
             conf = float(box.conf)
-            label = f"{models[i].names[c]} {conf:.2f}"
+            name = models[i].names[c]
+            if name == "Man":
+                name = "Gay"
+            if name == "Woman":
+                name = "Lesbian"
+            label = f"{name} {conf:.2f}"
             annotator.box_label(b, label)
 
     return annotator.result()
@@ -77,14 +82,12 @@ def init(model_paths, video_capture=0, output_log_file_path="output.log"):
     global capture, output, output_logs
     capture = cv2.VideoCapture(video_capture)
 
-    for i, model_path in enumerate(model_paths.split(',')):
+    for i, model_path in enumerate(model_paths.split(",")):
         models.append(YOLO(model_path))
         result_queues.append(queue.Queue(maxsize=1))
         __last_results.append(None)
 
-        threading \
-            .Thread(target=inference_worker(i), daemon=True) \
-            .start()
+        threading.Thread(target=inference_worker(i), daemon=True).start()
 
     w = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))

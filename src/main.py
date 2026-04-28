@@ -25,6 +25,7 @@ if __name__ == "__main__":
     while (inference_result := inference.step())[0]:
         inference_result = inference_result[1]
         tagger.add_from_results(inference_result)
+        ownerships.tick(tagger.tagged_objects)
 
     inference.deinit()
     logger.deinit()

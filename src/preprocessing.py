@@ -32,7 +32,7 @@ class Item:
         color_frequency = {
             "red": [0] * 256,
             "green": [0] * 256,
-            "blue": [0] * 256
+            "blue": [0] * 256,
         }
 
         for xx in range(int(x1), int(x2)):
@@ -49,15 +49,15 @@ class Item:
             model.names[int(box.cls)],
             Vector2(cx, cy),
             float(box.conf),
-            color_frequency
+            color_frequency,
         )
 
     def __repr__(self):
         effective_confidence = self.effective_confidence()
         confidence_percent = round(effective_confidence * 100, 2)
-        name = "name=\"" + self.name + "\""
+        name = 'name="' + self.name + '"'
         pos = "position=" + repr(self.position)
-        return f'Item({name}, {pos}, confidence={confidence_percent}%)'
+        return f"Item({name}, {pos}, confidence={confidence_percent}%)"
 
     def compare(self, other):
         if self.name != other.name:
@@ -80,9 +80,11 @@ class Item:
                     - other.color_frequency[channel][i]
                 )
 
-        return math.sqrt(diff.x + diff.y) * velocity_disparity \
-            + COLOR_FREQUENCY_DIFF_STRENGTH \
-            * color_frequency_diff / (256 * 256 * 3)
+        return math.sqrt(
+            diff.x + diff.y
+        ) * velocity_disparity + COLOR_FREQUENCY_DIFF_STRENGTH * color_frequency_diff / (
+            256 * 256 * 3
+        )
 
     def update(self, other):
         self.velocity = (other.position - self.position).norm()
@@ -112,7 +114,7 @@ class ItemTagger:
         logger.debug(
             "Adding",
             sum(map(lambda x: len(x[0].boxes), models_results)),
-            "results"
+            "results",
         )
         logger.debug("Currently", len(self.tagged_objects), "objects tagged")
         for obj in self.tagged_objects:
@@ -157,7 +159,7 @@ class ItemTagger:
                     "Comparision -> Name:",
                     note[0],
                     " Comparision score:",
-                    comparision
+                    comparision,
                 )
             self.tagged_objects.append(item)
 

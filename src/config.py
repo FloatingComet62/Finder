@@ -18,7 +18,7 @@ LEVELS = {
     "WARN": 1,
     "ERROR": 0,
 }
-LOG_LEVEL = LEVELS.get(
-    (os.environ.get("LOG_LEVEL") or "").upper()
-) or LEVELS["ERROR"]
+LOG_LEVEL = (
+    LEVELS.get((os.environ.get("LOG_LEVEL") or "").upper()) or LEVELS["ERROR"]
+)
 MODEL_NAMES = os.environ["MODEL_NAMES"]
