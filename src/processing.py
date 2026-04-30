@@ -1,4 +1,5 @@
 from logger import ModuleLogger
+import pickle
 
 logger = ModuleLogger("Processing")
 
@@ -48,8 +49,20 @@ class Ownership:
 
 
 class ItemOwnershipProcessor:
-    def __init__(self):
-        self.ownerships = {}
+    def __init__(self, save_file):
+        self.save_file = save_file
+        try:
+            logger.debug("Loading ownerships from", save_file)
+            f = open(save_file, "rb")
+            self.ownerships = pickle.load(f)
+            f.close()
+        except FileNotFoundError:
+            self.ownerships = {}
+
+    def deinit(self):
+        logger.debug("Saving ownerships to", self.save_file)
+        with open(self.save_file, "wb") as f:
+            pickle.dump(self.ownerships, f)
 
     def tick(self, objects):
         parents, not_parents = filter_parents(objects)
@@ -66,3 +79,4 @@ class ItemOwnershipProcessor:
                 distance = (parent.position - not_parent.position).dist()
                 proximity = 1 if distance < PARENT_PROXIMITY else 0
                 self.ownerships[parent][not_parent].tick(proximity)
+        return parents

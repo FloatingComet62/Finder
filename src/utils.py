@@ -16,6 +16,8 @@ class Vector2:
 
     def norm(self):
         dist = self.dist()
+        if dist == 0:
+            return Vector2(0, 0)
         return Vector2(self.x / dist, self.y / dist)
 
     def __repr__(self):

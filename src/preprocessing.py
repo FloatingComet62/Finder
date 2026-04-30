@@ -8,7 +8,10 @@ from string import ascii_letters
 from inference import models
 from logger import ModuleLogger
 from utils import Vector2
+import pickle
+import numpy as np
 import math
+import os
 
 logger = ModuleLogger("Preprocessing")
 
@@ -18,29 +21,33 @@ COLOR_FREQUENCY_DIFF_STRENGTH = 1000
 
 
 class Item:
-    def __init__(self, class_name, position, confidence, color_frequency):
+    def __init__(
+        self,
+        class_name,
+        position,
+        confidence,
+        color_frequency,
+        frame,
+    ):
         self.id = "".join(choices(ascii_letters, k=32))
         self.name = class_name
         self.position = position
         self.velocity = Vector2(0, 0)
         self.confidence = confidence
+
         self.signal_strength = int(MAX_ITERATION_SIGNAL_STRENGTH * confidence)
         self.color_frequency = color_frequency
+        self.frame = frame
 
     def from_box(box, model, frame):
         x1, y1, x2, y2 = box.xyxy[0]
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        cutted_frame = frame[y1:y2, x1:x2]
         color_frequency = {
-            "red": [0] * 256,
-            "green": [0] * 256,
-            "blue": [0] * 256,
+            "red": np.bincount(cutted_frame[:, :, 0].ravel(), minlength=256),
+            "green": np.bincount(cutted_frame[:, :, 1].ravel(), minlength=256),
+            "blue": np.bincount(cutted_frame[:, :, 2].ravel(), minlength=256),
         }
-
-        for xx in range(int(x1), int(x2)):
-            for yy in range(int(y1), int(y2)):
-                pixel = frame[yy][xx]
-                color_frequency["red"][pixel[0]] += 1
-                color_frequency["green"][pixel[1]] += 1
-                color_frequency["blue"][pixel[2]] += 1
 
         cx = (x1 + x2) / 2
         cy = (y1 + y2) / 2
@@ -50,6 +57,7 @@ class Item:
             Vector2(cx, cy),
             float(box.conf),
             color_frequency,
+            cutted_frame,
         )
 
     def __repr__(self):
@@ -107,8 +115,10 @@ class Item:
 
 
 class ItemTagger:
-    def __init__(self):
+    def __init__(self, save_folder):
         self.tagged_objects = []
+        self.save_folder = save_folder
+        os.makedirs(save_folder, exist_ok=True)
 
     def add_from_results(self, models_results):
         logger.debug(
@@ -167,4 +177,9 @@ class ItemTagger:
             should_keep = tagged_object.tick()
             if should_keep:
                 continue
+            with open(
+                f"{self.save_folder}/{tagged_object.id}",
+                "wb"
+            ) as f:
+                pickle.dump(tagged_object, f)
             self.tagged_objects.remove(tagged_object)

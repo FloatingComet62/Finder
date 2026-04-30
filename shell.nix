@@ -11,6 +11,7 @@ let
     python-dotenv
     ultralytics
     polars
+    face-recognition
   ]);
   models = {
     yolov8s = {

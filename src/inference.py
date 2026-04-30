@@ -46,10 +46,12 @@ def annotate(frame, results):
             c = int(box.cls)
             conf = float(box.conf)
             name = models[i].names[c]
-            if name == "Man":
-                name = "Gay"
-            if name == "Woman":
-                name = "Lesbian"
+            # if name == "Accordion":
+            #     name = "object"
+            # if name == "Man":
+            #     name = "Gay"
+            # if name == "Woman":
+            #     name = "Lesbian"
             label = f"{name} {conf:.2f}"
             annotator.box_label(b, label)
 
