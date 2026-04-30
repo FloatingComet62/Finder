@@ -36,6 +36,7 @@ let
 in
 pkgs.mkShell {
   buildInputs = with pkgs; [
+    just
     pythonEnv
     wget
     v4l-utils

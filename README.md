@@ -36,3 +36,17 @@ Security cameras cannot automatically determine ownership of items left in view.
 - **Performance Comparison**: Jetson Nano with CUDA acceleration provides real-time inference suitable for edge deployment; cloud-only alternatives introduce latency unsuitable for real-time tracking
 
 ## Setup Instructions
+
+### Nix
+```bash
+nix-shell
+just dev
+```
+
+### Non-Nix
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python src/main.py
+```
