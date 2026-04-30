@@ -15,7 +15,7 @@ import processing
 import embeddingmatching
 
 if __name__ == "__main__":
-    logger.init()#file=open("stdout.log", "w"))
+    logger.init(file=open("stdout.log", "w"))
     logger.debug("Initialized")
 
     inference.init(config.MODEL_NAMES)
