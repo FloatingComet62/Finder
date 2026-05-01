@@ -1,5 +1,6 @@
 import os
 import pickle
+import numpy as np
 import face_recognition
 from logger import ModuleLogger
 
@@ -23,24 +24,31 @@ class EmbeddingMatcher:
             self.files.add(parent.id)
 
     def find_resembling_parent(self, comparing_frame):
-        rgb_frame = comparing_frame[:, :, ::-1]
+        rgb_frame = np.ascontiguousarray(
+            comparing_frame[:, :, ::-1],
+            dtype=np.uint8
+        )
 
         frame_encodings = face_recognition.face_encodings(rgb_frame)
 
         if len(frame_encodings) == 0:
             logger.warn("No face found in the input frame")
-            return 0.0
+            return 0
 
         frame_encoding = frame_encodings[0]
         best_match = None
         best_distance = 1.0
 
         for parent_filename in self.files:
-            f = open(f"{self.save_folder}/{parent_filename}.pkl", "rb")
-            parent = f.load(f)
+            f = open(f"{self.save_folder}/{parent_filename}", "rb")
+            parent = pickle.load(f)
             f.close()
 
-            rgb_parent = parent.frame[:, :, ::-1]
+            rgb_parent = np.ascontiguousarray(
+                parent.frame[:, :, ::-1],
+                dtype=np.uint8
+            )
+
             parent_encodings = face_recognition.face_encodings(rgb_parent)
 
             if len(parent_encodings) == 0:
